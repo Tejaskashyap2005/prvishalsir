@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vishal Singh — Personal Branding Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fa; --surface: #fff; --text: #111; --muted: #6b7280; --border: #e5e7eb;
+  --accent: #0a66c2; --accent-light: #e8f0fe;
+  --green: #059669; --green-bg: #ecfdf5;
+  --red: #dc2626; --red-bg: #fef2f2;
+  --purple: #7c3aed; --purple-bg: #f5f3ff;
+  --orange: #d97706; --orange-bg: #fffbeb;
+  --pink: #db2777; --pink-bg: #fdf2f8;
+  --yellow: #ca8a04; --yellow-bg: #fefce8;
+  --done: #059669; --done-bg: #d1fae5;
+  --empty: #f3f4f6;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f0f0f; --surface: #1a1a1a; --text: #e5e5e5; --muted: #9ca3af; --border: #2a2a2a;
+    --accent: #4d9ee8; --accent-light: #1a2a3a;
+    --green-bg: #0a2a1a; --red-bg: #2a1010; --purple-bg: #1a1030; --orange-bg: #2a2010; --pink-bg: #2a1020; --yellow-bg: #2a2510;
+    --done-bg: #0a3a1a; --empty: #1a1a1a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f0f0f; --surface: #1a1a1a; --text: #e5e5e5; --muted: #9ca3af; --border: #2a2a2a;
+  --accent: #4d9ee8; --accent-light: #1a2a3a;
+  --green-bg: #0a2a1a; --red-bg: #2a1010; --purple-bg: #1a1030; --orange-bg: #2a2010; --pink-bg: #2a1020; --yellow-bg: #2a2510;
+  --done-bg: #0a3a1a; --empty: #1a1a1a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+.app { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; }
+h1 span { color: var(--accent); }
+.sync-status { font-size: 0.6rem; padding: 3px 8px; border-radius: 10px; font-weight: 600; }
+.sync-status.online { background: var(--done-bg); color: var(--done); }
+.sync-status.offline { background: var(--red-bg); color: var(--red); }
+.sync-status.syncing { background: var(--orange-bg); color: var(--orange); }
+.month-nav { display: flex; align-items: center; gap: 8px; }
+.month-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.month-nav button:hover { border-color: var(--accent); }
+.month-label { font-weight: 700; font-size: 0.9rem; min-width: 120px; text-align: center; }
+.accounts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.acc-pill { font-size: 0.65rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; user-select: none; white-space: nowrap; }
+.acc-pill.active { border-color: var(--text); transform: scale(1.05); }
+.acc-pill.ig { background: var(--pink-bg); color: var(--pink); }
+.acc-pill.li { background: var(--accent-light); color: var(--accent); }
+.acc-pill.yt { background: var(--red-bg); color: var(--red); }
+.acc-pill.clip { background: var(--orange-bg); color: var(--orange); }
+.view-all { background: var(--surface); color: var(--text); border: 1px solid var(--border) !important; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 10px; text-align: center; }
+.stat-n { font-size: 1.6rem; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; }
+.stat-l { font-size: 0.6rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
+.cal-head { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 3px; }
+.cal-head div { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-align: center; padding: 4px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.day { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; min-height: 80px; padding: 6px; position: relative; cursor: pointer; transition: box-shadow 0.12s; }
+.day:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.day.outside { background: var(--empty); border-color: transparent; cursor: default; opacity: 0.4; }
+.day.today { border-color: var(--accent); border-width: 2px; }
+.day-n { font-size: 0.7rem; font-weight: 700; color: var(--muted); }
+.day.today .day-n { color: var(--accent); }
+.day-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.dot { width: 8px; height: 8px; border-radius: 2px; }
+.dot.ig { background: var(--pink); }
+.dot.li { background: var(--accent); }
+.dot.yt { background: var(--red); }
+.dot.clip { background: var(--orange); }
+.day-count { position: absolute; top: 5px; right: 6px; font-size: 0.6rem; font-weight: 800; color: var(--done); background: var(--done-bg); padding: 1px 5px; border-radius: 8px; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+.overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: 14px; max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 24px; position: relative; }
+.modal-x { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--muted); width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.modal-x:hover { background: var(--empty); }
+.modal h2 { font-size: 1rem; font-weight: 800; margin-bottom: 14px; }
+.check-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.check-row:last-child { border-bottom: none; }
+.check-label { font-size: 0.8rem; font-weight: 600; flex: 1; }
+.check-type { font-size: 0.6rem; color: var(--muted); font-weight: 600; }
+.cnt-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+.cnt-btn:hover:not(:disabled) { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.cnt-btn:disabled { opacity: 0.3; cursor: default; }
+.cnt-num { width: 28px; text-align: center; font-size: 0.9rem; font-weight: 800; color: var(--muted); }
+.cnt-num.has-posts { color: var(--done); }
+.note-input { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-size: 0.75rem; font-family: inherit; margin-top: 10px; resize: vertical; min-height: 50px; background: var(--bg); color: var(--text); }
+.loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 200; flex-direction: column; gap: 12px; }
+.loading-overlay.hidden { display: none; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 640px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .day { min-height: 56px; padding: 4px; }
+  .day-dots .dot { width: 6px; height: 6px; }
+  .accounts { gap: 4px; }
+  .acc-pill { font-size: 0.58rem; padding: 3px 7px; }
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loader">
+  <div class="spinner"></div>
+  <div style="font-size:0.8rem;color:var(--muted);font-weight:600">Loading tracker...</div>
+</div>
+
+<div class="app">
+  <header>
+    <div>
+      <h1>Vishal Singh <span>Personal Branding</span></h1>
+      <p style="font-size:0.75rem;color:var(--muted)">Content Tracker — All Platforms <span class="sync-status" id="syncStatus">connecting...</span></p>
+    </div>
+    <div class="month-nav">
+      <button id="prevM">←</button>
+      <div class="month-label" id="monthLabel"></div>
+      <button id="nextM">→</button>
+    </div>
+  </header>
+  <div class="accounts" id="accPills"></div>
+  <div class="stats" id="statsBar"></div>
+  <div class="cal-head">
+    <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="modal-x" id="modalX">✕</button>
+    <div id="modalInner"></div>
+  </div>
+</div>
+
+<!-- ==================== FIREBASE SDK ==================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-firestore-compat.min.js"></script>
+
+<script>
+// ============================================================
+//  STEP 1: PASTE YOUR FIREBASE CONFIG HERE (from Firebase Console)
+// ============================================================
+const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCGynu44-4EgEmJ5oNvtNJIL3n3fobzU4g",
+      authDomain: "claude-pro-dashboard.firebaseapp.com",
+      databaseURL: "https://claude-pro-dashboard-default-rtdb.firebaseio.com",
+      projectId: "claude-pro-dashboard",
+      storageBucket: "claude-pro-dashboard.firebasestorage.app",
+      messagingSenderId: "140448067843",
+      appId: "1:140448067843:web:21267d6ed96a7729153936",
+      measurementId: "G-G409VW2PTJ"
+    };
+// ============================================================
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const DOC_REF = db.collection("tracker").doc("content_data");
+
+// ======================== ACCOUNTS ========================
+const ACCOUNTS = [
+  { id: "all", name: "All", type: "view-all" },
+  { id: "ig_personal", name: "@vishal.wishluck", type: "ig", platform: "Instagram" },
+  { id: "li", name: "LinkedIn", type: "li", platform: "LinkedIn" },
+  { id: "yt", name: "YouTube", type: "yt", platform: "YouTube" },
+  { id: "clip1", name: "@monday_department", type: "clip", platform: "IG Clip" },
+  { id: "clip2", name: "@thecontentbureau__", type: "clip", platform: "IG Clip" },
+  { id: "clip3", name: "@cowork_out", type: "clip", platform: "IG Clip" },
+  { id: "clip4", name: "@unpaid_thought", type: "clip", platform: "IG Clip" },
+  { id: "clip5", name: "@office_politics69", type: "clip", platform: "IG Clip" },
+  { id: "clip6", name: "@the.social.room_", type: "clip", platform: "IG Clip" },
+  { id: "clip7", name: "@theviraljournal", type: "clip", platform: "IG Clip" },
+  { id: "clip8", name: "@deadline_club_", type: "clip", platform: "IG Clip" },
+  { id: "clip9", name: "@the.notice.period", type: "clip", platform: "IG Clip" },
+  { id: "clip10", name: "@culture.punch", type: "clip", platform: "IG Clip" },
+];
+
+let state = {};
+let curYear = 2026, curMonth = 9;
+let activeFilter = "all";
+let firebaseReady = false;
+let saveTimer = null;
+
+// ======================== FIREBASE SYNC ========================
+function setSyncStatus(s) {
+  const el = document.getElementById('syncStatus');
+  el.textContent = s === 'online' ? 'synced' : s === 'offline' ? 'offline (local)' : s === 'syncing' ? 'saving...' : 'connecting...';
+  el.className = 'sync-status ' + s;
+}
+
+// Load from Firebase (with localStorage fallback)
+async function loadState() {
+  // Always load localStorage first (instant)
+  try { state = JSON.parse(localStorage.getItem('vs_branding_tracker') || '{}'); } catch(e) { state = {}; }
+
+  // Then try Firebase
+  try {
+    const snap = await DOC_REF.get();
+    if (snap.exists && snap.data().data) {
+      state = snap.data().data;
+      localStorage.setItem('vs_branding_tracker', JSON.stringify(state));
+    } else {
+      // First time — push local state to Firebase
+      await DOC_REF.set({ data: state, updated_at: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    firebaseReady = true;
+    setSyncStatus('online');
+  } catch(e) {
+    console.warn('Firebase offline, using localStorage:', e.message);
+    firebaseReady = false;
+    setSyncStatus('offline');
+  }
+}
+
+// Save to both localStorage + Firebase
+function saveState() {
+  localStorage.setItem('vs_branding_tracker', JSON.stringify(state));
+
+  // Debounce Firebase writes (wait 800ms after last change)
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    if (!firebaseReady) return;
+    setSyncStatus('syncing');
+    try {
+      await DOC_REF.set({ data: state, updated_at: firebase.firestore.FieldValue.serverTimestamp() });
+      setSyncStatus('online');
+    } catch(e) {
+      console.warn('Firebase save failed:', e.message);
+      setSyncStatus('offline');
+    }
+  }, 800);
+}
+
+// Real-time listener — auto-sync when another device changes data
+function listenForChanges() {
+  try {
+    DOC_REF.onSnapshot((snap) => {
+      if (snap.exists && snap.data().data) {
+        state = snap.data().data;
+        localStorage.setItem('vs_branding_tracker', JSON.stringify(state));
+        render();
+        setSyncStatus('online');
+      }
+    }, (err) => {
+      console.warn('Snapshot listener error:', err.message);
+      setSyncStatus('offline');
+    });
+  } catch(e) {}
+}
+
+// ======================== DATA HELPERS ========================
+function key(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
+function dayKey(y, m, d) { return `${key(y,m)}-${String(d).padStart(2,'0')}`; }
+
+function increment(dk, accId) {
+  if (!state[dk]) state[dk] = {};
+  state[dk][accId] = (state[dk][accId] || 0) + 1;
+  saveState();
+}
+function decrement(dk, accId) {
+  if (!state[dk]) state[dk] = {};
+  state[dk][accId] = Math.max(0, (state[dk][accId] || 0) - 1);
+  if (state[dk][accId] === 0) delete state[dk][accId];
+  if (Object.keys(state[dk]).filter(k => k !== '_note').length === 0 && !state[dk]._note) delete state[dk];
+  saveState();
+}
+function setNote(dk, val) {
+  if (!state[dk]) state[dk] = {};
+  state[dk]._note = val;
+  if (!val) delete state[dk]._note;
+  saveState();
+}
+function getChecked(dk) {
+  if (!state[dk]) return [];
+  return Object.keys(state[dk]).filter(k => k !== '_note' && state[dk][k] > 0);
+}
+function getCount(dk, accId) {
+  return (state[dk] && state[dk][accId]) ? state[dk][accId] : 0;
+}
+function getTotalPosts(dk) {
+  if (!state[dk]) return 0;
+  return Object.keys(state[dk]).filter(k => k !== '_note').reduce((sum, k) => sum + (state[dk][k] || 0), 0);
+}
+
+// ======================== RENDER ========================
+function render() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('monthLabel').textContent = `${months[curMonth]} ${curYear}`;
+
+  // Account pills
+  const pillsEl = document.getElementById('accPills');
+  pillsEl.innerHTML = '';
+  ACCOUNTS.forEach(a => {
+    const p = document.createElement('div');
+    p.className = `acc-pill ${a.type}${activeFilter === a.id ? ' active' : ''}`;
+    p.textContent = a.name;
+    p.onclick = () => { activeFilter = a.id; render(); };
+    pillsEl.appendChild(p);
+  });
+
+  // Stats
+  const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === curYear && today.getMonth() === curMonth;
+  const todayDate = today.getDate();
+  let totalPosts = 0, daysWithContent = 0;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dk = dayKey(curYear, curMonth, d);
+    const dayTotal = getTotalPosts(dk);
+    if (dayTotal > 0) { daysWithContent++; totalPosts += dayTotal; }
+  }
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="stat-n">${totalPosts}</div><div class="stat-l">Total Posts This Month</div></div>
+    <div class="stat"><div class="stat-n">${daysWithContent}</div><div class="stat-l">Days With Content</div></div>
+    <div class="stat"><div class="stat-n">${daysInMonth - daysWithContent}</div><div class="stat-l">Days Without Content</div></div>
+    <div class="stat"><div class="stat-n">${totalPosts > 0 ? (totalPosts / Math.max(daysWithContent,1)).toFixed(1) : '0'}</div><div class="stat-l">Avg Posts / Active Day</div></div>
+  `;
+
+  // Calendar grid
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const firstDay = new Date(curYear, curMonth, 1).getDay();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+
+  for (let i = 0; i < offset; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'day outside';
+    grid.appendChild(cell);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'day';
+    if (isCurrentMonth && d === todayDate) cell.classList.add('today');
+
+    const dk = dayKey(curYear, curMonth, d);
+    const checked = getChecked(dk);
+    const filteredChecked = activeFilter === 'all' ? checked : checked.filter(id => id === activeFilter);
+    const dayTotal = activeFilter === 'all' ? getTotalPosts(dk) : getCount(dk, activeFilter);
+
+    const num = document.createElement('div');
+    num.className = 'day-n';
+    num.textContent = d;
+    cell.appendChild(num);
+
+    if (dayTotal > 0) {
+      const countBadge = document.createElement('div');
+      countBadge.className = 'day-count';
+      countBadge.textContent = dayTotal;
+      cell.appendChild(countBadge);
+    }
+
+    const dots = document.createElement('div');
+    dots.className = 'day-dots';
+    const shown = activeFilter === 'all' ? checked : filteredChecked;
+    shown.forEach(id => {
+      const acc = ACCOUNTS.find(a => a.id === id);
+      if (acc) {
+        const cnt = getCount(dk, id);
+        for (let r = 0; r < Math.min(cnt, 4); r++) {
+          const dot = document.createElement('div');
+          dot.className = `dot ${acc.type}`;
+          dot.title = `${acc.name} (${cnt})`;
+          dots.appendChild(dot);
+        }
+        if (cnt > 4) {
+          const more = document.createElement('div');
+          more.style.cssText = 'font-size:0.5rem;font-weight:700;color:var(--muted)';
+          more.textContent = `+${cnt-4}`;
+          dots.appendChild(more);
+        }
+      }
+    });
+    cell.appendChild(dots);
+    cell.onclick = () => openModal(d);
+    grid.appendChild(cell);
+  }
+
+  const totalCells = offset + daysInMonth;
+  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 0; i < remaining; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'day outside';
+    grid.appendChild(cell);
+  }
+}
+
+// ======================== MODAL ========================
+function openModal(d) {
+  const dk = dayKey(curYear, curMonth, d);
+  const checked = getChecked(dk);
+  const note = state[dk]?._note || '';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dt = new Date(curYear, curMonth, d);
+  const dayTotal = getTotalPosts(dk);
+
+  let html = `<h2>${dayNames[dt.getDay()]}, ${d} ${months[curMonth]} ${curYear}</h2>`;
+  html += `<p style="font-size:0.7rem;color:var(--muted);margin-bottom:12px">${dayTotal} total posts across ${checked.length} accounts</p>`;
+
+  ACCOUNTS.filter(a => a.id !== 'all').forEach(a => {
+    const cnt = getCount(dk, a.id);
+    html += `
+      <div class="check-row">
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <button class="cnt-btn" data-dk="${dk}" data-acc="${a.id}" data-dir="down" ${cnt===0?'disabled':''}>−</button>
+          <div class="cnt-num${cnt > 0 ? ' has-posts' : ''}">${cnt}</div>
+          <button class="cnt-btn" data-dk="${dk}" data-acc="${a.id}" data-dir="up">+</button>
+        </div>
+        <div class="check-label">${a.name}</div>
+        <div class="check-type">${a.platform}</div>
+      </div>`;
+  });
+
+  html += `<textarea class="note-input" placeholder="Notes for this day..." data-dk="${dk}">${note}</textarea>`;
+
+  document.getElementById('modalInner').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+
+  document.querySelectorAll('.cnt-btn').forEach(btn => {
+    btn.onclick = () => {
+      if (btn.dataset.dir === 'up') increment(btn.dataset.dk, btn.dataset.acc);
+      else decrement(btn.dataset.dk, btn.dataset.acc);
+      render();
+      openModal(d);
+    };
+  });
+
+  const noteEl = document.querySelector('.note-input');
+  let noteTimer;
+  noteEl.addEventListener('input', () => {
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => { setNote(noteEl.dataset.dk, noteEl.value); }, 400);
+  });
+}
+
+document.getElementById('modalX').onclick = () => document.getElementById('overlay').classList.remove('open');
+document.getElementById('overlay').onclick = (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); };
+document.getElementById('prevM').onclick = () => { curMonth--; if (curMonth < 0) { curMonth = 11; curYear--; } render(); };
+document.getElementById('nextM').onclick = () => { curMonth++; if (curMonth > 11) { curMonth = 0; curYear++; } render(); };
+
+// ======================== INIT ========================
+async function init() {
+  await loadState();
+  render();
+  listenForChanges();
+  document.getElementById('loader').classList.add('hidden');
+}
+
+init();
+</script>
+</body>
+</html>
